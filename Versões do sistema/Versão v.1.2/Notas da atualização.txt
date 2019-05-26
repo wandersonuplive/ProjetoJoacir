@@ -1,1 +1,0 @@
-Foram adicionadas as mensagens de sucesso e falha ao adicionar um novo arquivo no popup de enviar aquivos.
