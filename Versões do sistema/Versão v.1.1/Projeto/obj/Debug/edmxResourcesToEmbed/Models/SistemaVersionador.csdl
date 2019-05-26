@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="SistemaBackupModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+  <EntityContainer Name="SistemaBackupEntities" annotation:LazyLoadingEnabled="true">
+    <EntitySet Name="tbArquivosAtuais" EntityType="SistemaBackupModel.tbArquivosAtuais" />
+    <EntitySet Name="tbUsuarios" EntityType="SistemaBackupModel.tbUsuarios" />
+    <AssociationSet Name="FK_tbArquivosAtuais_tbUsuarios" Association="SistemaBackupModel.FK_tbArquivosAtuais_tbUsuarios">
+      <End Role="tbUsuarios" EntitySet="tbUsuarios" />
+      <End Role="tbArquivosAtuais" EntitySet="tbArquivosAtuais" />
+    </AssociationSet>
+    <AssociationSet Name="FK_tbArquivosAtuais_tbUsuarios1" Association="SistemaBackupModel.FK_tbArquivosAtuais_tbUsuarios1">
+      <End Role="tbUsuarios" EntitySet="tbUsuarios" />
+      <End Role="tbArquivosAtuais" EntitySet="tbArquivosAtuais" />
+    </AssociationSet>
+  </EntityContainer>
+  <EntityType Name="tbArquivosAtuais">
+    <Key>
+      <PropertyRef Name="IdArquivo" />
+    </Key>
+    <Property Name="IdArquivo" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="Projeto" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="NomeArquivo" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="ExtensaoArquivo" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="DataUpload" Type="DateTime" Nullable="false" Precision="3" />
+    <Property Name="IdUsuario" Type="Int32" Nullable="false" />
+    <Property Name="Descricao" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+    <Property Name="Status" Type="Int32" Nullable="false" />
+    <Property Name="Arquivo" Type="Binary" Nullable="false" MaxLength="Max" FixedLength="false" />
+    <NavigationProperty Name="tbUsuarios" Relationship="SistemaBackupModel.FK_tbArquivosAtuais_tbUsuarios" FromRole="tbArquivosAtuais" ToRole="tbUsuarios" />
+    <Property Name="IdUsuarioDownload" Type="Int32" />
+    <NavigationProperty Name="tbUsuarios1" Relationship="SistemaBackupModel.FK_tbArquivosAtuais_tbUsuarios1" FromRole="tbArquivosAtuais" ToRole="tbUsuarios" />
+  </EntityType>
+  <EntityType Name="tbUsuarios">
+    <Key>
+      <PropertyRef Name="IdUsuario" />
+    </Key>
+    <Property Name="IdUsuario" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="Login" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="Nome" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="Senha" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="Email" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+    <NavigationProperty Name="tbArquivosAtuais" Relationship="SistemaBackupModel.FK_tbArquivosAtuais_tbUsuarios" FromRole="tbUsuarios" ToRole="tbArquivosAtuais" />
+    <NavigationProperty Name="tbArquivosAtuais1" Relationship="SistemaBackupModel.FK_tbArquivosAtuais_tbUsuarios1" FromRole="tbUsuarios" ToRole="tbArquivosAtuais" />
+  </EntityType>
+  <Association Name="FK_tbArquivosAtuais_tbUsuarios">
+    <End Type="SistemaBackupModel.tbUsuarios" Role="tbUsuarios" Multiplicity="1" />
+    <End Type="SistemaBackupModel.tbArquivosAtuais" Role="tbArquivosAtuais" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="tbUsuarios">
+        <PropertyRef Name="IdUsuario" />
+      </Principal>
+      <Dependent Role="tbArquivosAtuais">
+        <PropertyRef Name="IdUsuario" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_tbArquivosAtuais_tbUsuarios1">
+    <End Type="SistemaBackupModel.tbUsuarios" Role="tbUsuarios" Multiplicity="0..1" />
+    <End Type="SistemaBackupModel.tbArquivosAtuais" Role="tbArquivosAtuais" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="tbUsuarios">
+        <PropertyRef Name="IdUsuario" />
+      </Principal>
+      <Dependent Role="tbArquivosAtuais">
+        <PropertyRef Name="IdUsuarioDownload" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+</Schema>

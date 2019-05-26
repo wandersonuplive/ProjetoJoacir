@@ -1,0 +1,449 @@
+﻿@{
+    ViewBag.Title = "Controlador de versões";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    li.model {
+        display: none;
+    }
+
+    .item {
+        text-align: left;
+        font-size: 13pt;
+        font-weight: bold;
+        border: none;
+        color: white;
+        padding-top: 7px;
+        font-family: 'Arial', monospace;
+    }
+
+
+    .itemTabela {
+        text-align: left;
+        border: none;
+    }
+
+    .item1 {
+        min-width: 13rem;
+        max-width: 13rem;
+        padding-left: 0.5rem;
+    }
+
+    .item2 {
+        min-width: 20rem;
+        max-width: 20rem;
+    }
+
+    .item3 {
+        min-width: 10rem;
+        max-width: 10rem;
+    }
+
+    .item4 {    
+        min-width: 12rem;
+        max-width: 12rem;   
+        padding-top: 0.5rem;
+    }
+
+    .item5 {
+        min-width: 15rem;
+        max-width: 15rem;
+    }
+
+    .item6 {
+        min-width: 23rem;
+        max-width: 23rem;
+    }
+
+    .item7 {
+        min-width: 10rem;
+        max-width: 10rem;
+    }
+
+    .item8 {
+        min-width: 10rem;
+        max-width: 10rem;
+    }
+
+    .flex-row {
+        display: flex;
+        align-items: center;
+    }
+
+    .cinza{
+        background-color: lightgray;
+    }
+    .btn-file input[type=file] {
+        position: absolute;
+        top: 0;
+        right: 0;
+        min-width: 100%;
+        min-height: 100%;
+        font-size: 100px;
+        text-align: right;
+        filter: alpha(opacity=0);
+        opacity: 0;
+        outline: none;
+        cursor: inherit;
+        display: block;
+    }
+
+    #listArquivos > li{
+        min-height: 30px;
+        padding-bottom: 0px;
+        padding-top: 0px;
+        margin: 0px;
+    }
+    #listArquivos > li :not(.item4) {
+        padding-top: 0.6rem;
+    }
+        #listArquivos > li > p :not(.item4){
+            min-height: 20px;
+            padding-top: 0.5rem;
+            margin-top: 0px;
+            margin-bottom: 0px;
+        }
+
+    .disp {
+        color: green;
+        font-weight: bold;
+    }
+    .disp2 {
+        color: #2874a6;
+        font-weight: bold;
+    }
+    .bloq {
+        color: darkred;
+        font-weight: bold;
+    }
+</style>
+
+<script>
+    var $listArquivos = null;
+    var $txtIdArquivo = null;
+    var $txtDescricaoArquivo = null;
+    var $txtArquivo = null;
+    var $btnCarregarArquivo = null;
+
+    var $fileArquivo = null;
+    var corLinha = true;
+
+    $(function () {
+
+        init();
+
+        $txtArquivo.on('click', () => $fileArquivo.trigger('click'));
+        $txtArquivo.on('keyup', txtArquivo_keyup);
+
+        $fileArquivo.on('change', fileArquivo_change);
+
+        $btnCarregarArquivo.on('click', () => $fileArquivo.trigger('click'));
+
+        $(window).on('keyup', window_keyup);
+
+
+    });
+
+    $(document).ready(function () {
+        $listArquivos = $('#listArquivos');
+        ListUtils.setItems($listArquivos, [], false);
+
+
+        listarArquivos();
+
+        $('#btnNovoArquivo').on('click', function () {
+            $('#txtProjCad').val('');
+            $('#txtDescricaoCad').val('');
+            $('#txtArquivo').val('');
+            $('#modalNovoArquivo').modal('show');
+
+
+        });
+
+        $('#btnHelpDesk').on('click', function () {
+            window.open('https://trabalhojoacir.ngdesk.com/');
+        })
+
+        $('#btnSalvarNovoArquivo').on('click', function () {
+
+            var idArquivo = $txtIdArquivo.val();
+            var file = $fileArquivo[0].files[0];
+            var descricao = $('#txtDescricaoCad').val();
+            var nomeProjeto = $('#txtProjCad').val(); 
+
+            var validacao = "";
+
+            if (file == undefined && (idArquivo == null || idArquivo == ""))
+                validacao += "* Selecione um arquivo! \n";
+            if (descricao == null || descricao == "")
+                validacao += "* Informe a descrição do projeto! \n";
+            if (nomeProjeto == null || nomeProjeto == "")
+                validacao += "* Informe o nome do projeto! \n";
+
+            if (validacao != "") {
+                alert(validacao);
+                return;
+            }
+
+            var model = new FormData();
+
+            model.append('file', file);
+            model.append('descricao', descricao);
+            model.append('nomeProjeto', nomeProjeto);
+            model.append('idArquivo', idArquivo);
+            model.append('idUsuario', @ViewBag.idUsuario);
+
+            $('#btnSalvarNovoArquivo').prop('disabled', true);
+
+            $.ajax({
+                type: "POST",
+                enctype: "multipart/form-data",
+                dataType: "json",
+                url: '@Url.Action("AddArquivo", "Home")',
+                data: model,
+                processData: false,
+                contentType: false,
+                cache: false,
+                sucess: (data) => {
+                    var codigo = data.Codigo;
+
+                    if (codigo == 1) {
+                        alert("Dados gravados com sucesso!");
+                    } else {
+                        alert("Erro: " + data.Erro);
+                    }
+                }
+            }).fail(Utils.printError);
+
+            $('#btnSalvarNovoArquivo').prop('disabled', false);
+
+        });
+    });
+
+    function listarArquivos() {
+        $.get('@Url.Action("GetArquivos", "Home")', function (response) {
+            corLinha = true;
+            ListUtils.setItems($listArquivos, response, listArquivos_enumerate);
+        }).fail(Utils.printError);
+
+    }
+
+    function init() {
+
+        $txtIdArquivo = $('#txtIdArquivo');
+        $txtDescricaoArquivo = $('#txtDescricaoArquivo');
+        $txtArquivo = $('#txtArquivo');
+
+        $fileArquivo = $('#fileArquivo');
+        $btnCarregarArquivo = $('#btnCarregarArquivo');
+
+
+        $('#btnNovoArquivo').on('click', function () {
+            $('#modalNovoArquivo').modal('show');
+
+
+        });
+
+        setInterval(function () {
+            listarArquivos();
+        }, 1500);
+
+        $('#btnVoltarNovoArquivo').on('click', function () {
+            $('#modalNovoArquivo').modal('hide');
+        })
+
+    };
+
+    function txtArquivo_keyup(e) {
+        if (e.ctrlKey)
+            return;
+        var KeyCode = e.KeyCode;
+
+        if (KeyCode == 13 || KeyCode == 32)
+            $btnCarregarArquivo.trigger('click');
+    }
+
+    function devolverArquivo($li) {
+        var li = $li.data('item');
+        debugger;
+        if (li != undefined)
+            $.post('@Url.Action("DevolverArquivo", "Home")', { idArquivo: li.id, idUsuarioDownload: li.idUsuarioDownload }, function (response) {
+                if (response != "")
+                    alert(response);
+                
+        }).fail(Utils.printError);
+    }
+
+    function downloadArquivo($li) {
+        
+        if ($li.find('p.bloq').length > 0)
+            return;
+
+        var li = $li.data('item');
+        
+        location.href = '@Url.Action("DownloadArquivo", "Home", new { id = "ID", idUsuario = "USER" })'.replace("ID", li.id).replace("USER", @ViewBag.idUsuario);
+
+
+    }
+
+    function fileArquivo_change() {
+        var $file = $(this)[0].files[0];
+
+        if ($file != undefined) {
+            var fileName = $file.name;
+            var fileSizeMB = getFileSize($file.size, "MB");
+
+            if (fileSizeMB > 50) {
+                alert("Arquivo muito grande, tamanho máximo permitido: 50 MB.");
+                $txtArquivo.val('');
+                $fileArquivo.val('');
+            } else {
+                $txtArquivo.val(fileName);
+            }
+        }
+    }
+
+    function getFileSize(bytes, tipoRetorno = "MB") {
+        var result;
+
+        switch (tipoRetorno) {
+            case "GB":
+                result = (bytes / 1073741824).toFixed(2);
+                break;
+            case "MB":
+                result = (bytes / 1048576).toFixed(2);
+                break;
+            case "KB":
+                result = (bytes / 1024).toFixed(2);
+                break;
+        }
+        return result;
+    }
+    function window_keyup(e) {
+        var keyCode = e.keyCode;
+
+        console.log(keyCode);
+    }
+
+    function listArquivos_enumerate(item, $li) {
+        $li.find('.item1b').html(item.projeto);
+        $li.find('.item2').html(item.nomearquivo);
+        $li.find('.item3').html(item.extensao);
+        $li.find('.item4').html(item.dataupload);
+        $li.find('.item5').html(item.nomeusuario);
+        $li.find('.item6').html(item.descricao);
+        $li.find('.item7').html(item.status == 1 ? "Disponível" : "Em Uso");
+        $li.find('.item7').removeClass('bloq');
+        $li.find('.item7').removeClass('disp');
+        $li.find('.item7').removeClass('disp2');
+
+        if (item.status == 1) {
+            $li.find('.item7').addClass('disp');
+            $li.find('.item8').html('<span class="glyphicon glyphicon-cloud-download btnDetalhes" onclick="downloadArquivo($(this).closest(' + "'" + "li" + "'" + '))" style="cursor:pointer; font-size: 13pt; color: green;" title="Download do projeto"></span>' +
+                '<span class= "glyphicon glyphicon-cloud-upload btnLiberar" style = "margin-left: 2rem; font-size: 13pt; cursor:pointer; color: darkred;" title = "Upload Projeto" disabled ></span >');
+        } else {
+
+            debugger;
+            if (item.idUsuarioDownload == @ViewBag.idUsuario) {
+                $li.find('.item8').html('<span class="glyphicon glyphicon-cloud-download btnDetalhes" onclick="downloadArquivo($(this).closest(' + "'" + "li" + "'" + '))" style="cursor:pointer; font-size: 13pt; color: green;" title="Download do projeto"></span>' +
+                    '<span class="glyphicon glyphicon-cloud-upload btnLiberar"  onclick="devolverArquivo($(this).closest(' + "'" + "li" + "'" + '))" style="margin-left: 2rem; font-size: 13pt; cursor:pointer; color: green;" title="Upload Projeto"></span>');
+                $li.find('.item7').addClass('disp2');
+                $li.find('.item7').html("Em uso por você");
+            }
+            else {
+                $li.find('.item8').html('<span class="glyphicon glyphicon-cloud-download btnDetalhes" style="cursor:pointer; font-size: 13pt; color: darkred;" title="Arquivo em uso por: ' + item.usuarioDownload + '" disabled></span>' +
+                    '<span class= "glyphicon glyphicon-cloud-upload btnLiberar" style = "margin-left: 2rem; font-size: 13pt; cursor:pointer; color: darkred;" title = "Upload Projeto" disabled ></span >');
+                $li.find('.item7').addClass('bloq');
+            }
+        }
+
+        if (corLinha) {
+            $li.removeClass('.cinza');
+            corLinha = false;
+        }
+        else {
+            $li.addClass('cinza');
+            corLinha = true;
+        }
+    }
+
+</script>
+
+<div class="container" style="border: solid 2px; border-radius: 1rem; box-shadow: 5px 5px 5px 5px #808080; min-width: 1200px; margin-top: 2rem; margin-bottom: 3rem; min-height: 500px;">
+
+    <h2 style="text-align: center;">Gerenciamento de Arquivos</h2>
+    <hr />
+    <button type="button" id="btnNovoArquivo" class="btn form-control btn-primary btn-login" style="width: 10rem; margin-bottom: 0.5rem;"><span class="glyphicon glyphicon-plus" style="margin-right: 3px;"></span> Novo </button>
+    <button type="button" id="btnHelpDesk" class="btn form-control btn-primary" style="float: right; width: 20rem; margin-bottom: 0.5rem;"><span class="glyphicon glyphicon-new-window" style="margin-right: 3px;"></span> Abrir HelpDesk </button>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div style="background-color: #2874a6; min-height: 40px; display: flex;">
+                <span class="item1 item"> Projeto </span>
+                <span class="item2 item"> Nome do Arquivo </span>
+                <span class="item3 item"> Extensão </span>
+                <span class="item4 item"> Data Upload</span>
+                <span class="item5 item"> Criador</span>
+                <span class="item6 item"> Descrição </span>
+                <span class="item7 item"> Status </span>
+                <span class="item8 item"> Download </span>
+            </div>
+            <ul class="list-group" id="listArquivos">
+                <li class="list-group-item model empty">
+                    <span class="text">Nenhum arquivo encontrado...</span>
+                </li>
+                <li class="list-group-item model default flex-row" style="padding: 0px;">
+                    <p class="item1b itemTabela" style="min-width: 130px; padding-left: 0.5rem;"></p>
+                    <p class="item2 itemTabela"></p>
+                    <p class="item3 itemTabela"></p>
+                    <p class="item4 itemTabela"></p>
+                    <p class="item5 itemTabela"></p>
+                    <p class="item6 itemTabela"></p>
+                    <p class="item7 itemTabela"></p>
+                    <p class="item8 itemTabela"></p>
+                    <p class="item9 itemTabela"></p>
+                </li>
+
+
+
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalNovoArquivo">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h3 class="modal-title" style="text-align: center;">Novo Arquivo</h3>
+            </div>
+            <div class="modal-body modal-responsive-body">
+                    <input style="" class="form-control" id="txtProjCad" placeholder="Nome do Projeto" maxlength="50" />
+                    <textarea style="margin-top: 1rem;" class="form-control" id="txtDescricaoCad" placeholder="Descrição do Projeto" maxlength="50" />
+                <div class="form-group flex-row" style="margin-top: 1rem;">
+                    <div id="container-controles" style=" width: 100%;">
+                        <input id="txtIdArquivo" type="hidden" />
+                        
+                        <div class="grupo-controle">
+                            <div class="input-btn-end flex-row">
+                                <input id="fileArquivo" type="file" style="display:none" />
+                                <input id="txtArquivo" type="text" class="form-control" placeholder="Selecionar o arquivo..." readonly />
+                                <div class="btn-file btn btn-primary" style="margin-left: 0px;" id="btnCarregarArquivo">
+                                    <span class="glyphicon glyphicon-option-horizontal" aria-hidden="true"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button id="btnSalvarNovoArquivo" type="submit" class="btn btn-success">Salvar</button>
+                    <button id="btnVoltarNovoArquivo" type="submit" class="btn btn-default">Voltar</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
