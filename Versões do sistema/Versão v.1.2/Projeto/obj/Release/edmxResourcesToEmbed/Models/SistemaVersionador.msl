@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="SistemaBackupModelStoreContainer" CdmEntityContainer="SistemaBackupEntities">
+    <EntitySetMapping Name="tbArquivosAtuais">
+      <EntityTypeMapping TypeName="SistemaBackupModel.tbArquivosAtuais">
+        <MappingFragment StoreEntitySet="tbArquivosAtuais">
+          <ScalarProperty Name="Arquivo" ColumnName="Arquivo" />
+          <ScalarProperty Name="Status" ColumnName="Status" />
+          <ScalarProperty Name="Descricao" ColumnName="Descricao" />
+          <ScalarProperty Name="IdUsuario" ColumnName="IdUsuario" />
+          <ScalarProperty Name="DataUpload" ColumnName="DataUpload" />
+          <ScalarProperty Name="ExtensaoArquivo" ColumnName="ExtensaoArquivo" />
+          <ScalarProperty Name="NomeArquivo" ColumnName="NomeArquivo" />
+          <ScalarProperty Name="Projeto" ColumnName="Projeto" />
+          <ScalarProperty Name="IdArquivo" ColumnName="IdArquivo" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="tbUsuarios">
+      <EntityTypeMapping TypeName="SistemaBackupModel.tbUsuarios">
+        <MappingFragment StoreEntitySet="tbUsuarios">
+          <ScalarProperty Name="Email" ColumnName="Email" />
+          <ScalarProperty Name="Senha" ColumnName="Senha" />
+          <ScalarProperty Name="Nome" ColumnName="Nome" />
+          <ScalarProperty Name="Login" ColumnName="Login" />
+          <ScalarProperty Name="IdUsuario" ColumnName="IdUsuario" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+  </EntityContainerMapping>
+</Mapping>

@@ -1,0 +1,237 @@
+﻿@{
+    ViewBag.Title = "Principal - Controlador de versões";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@Styles.Render("~/Content/jquery-ui.css")
+@Styles.Render("~/Content/jquery.fileupload-ui.css")
+<script src="~/Scripts/jquery.fileupload.bootstrap.js"></script>
+<style>
+    li.model {
+        display: none;
+    }
+
+    .item {
+        text-align: center;
+        font-size: large;
+        font-weight: bold;
+        border: none;
+    }
+
+    .item1 {
+        border-right: 2px groove lightgray;
+        min-width: 13rem;
+    }
+
+    .item2 {
+        border-right: 2px groove lightgray;
+        min-width: 20rem;
+    }
+
+    .item3 {
+        border-right: 2px groove lightgray;
+        min-width: 10rem;
+    }
+
+    .item4 {
+        border-right: 2px groove lightgray;
+        min-width: 12rem;
+    }
+
+    .item5 {
+        border-right: 2px groove lightgray;
+        min-width: 13rem;
+    }
+
+    .item6 {
+        border-right: 2px groove lightgray;
+        min-width: 25rem;
+    }
+
+    .item7 {
+        border-right: 2px groove lightgray;
+        min-width: 10rem;
+    }
+
+    .item8 {
+        min-width: 10rem;
+    }
+
+    .flex-row {
+        display: flex;
+        align-items: center;
+    }
+
+    .btn-file input[type=file] {
+        position: absolute;
+        top: 0;
+        right: 0;
+        min-width: 100%;
+        min-height: 100%;
+        font-size: 100px;
+        text-align: right;
+        filter: alpha(opacity=0);
+        opacity: 0;
+        outline: none;
+        cursor: inherit;
+        display: block;
+    }
+</style>
+
+<script>
+    var $listArquivos = null;
+
+    $(function () {
+
+        init();
+
+    });
+
+    $(document).ready(function () {
+        $listArquivos = $('#listArquivos');
+        ListUtils.setItems($listArquivos, [], false);
+
+        //if ($(".progress .progress-bar")[0]) {
+        //    $('.progress .progress-bar').progressbar();
+        //}
+        
+
+
+        $('#btnNovoArquivo').on('click', function () {
+            $('#modalNovoArquivo').modal('show');
+
+
+        });
+
+        jQuery.fn.extend({
+            live: function (event, callback) {
+                if (this.selector) {
+                    jQuery(document).on(event, this.selector, callback);
+                }
+                return this;
+            }
+
+        })
+
+        $('#fileupload').fileupload({
+            dataType: 'json',
+            url: '/Home/UploadFiles',
+            autoUpload: true,
+            done: function (e, data) {
+                $('.file_name').html(data.result.name);
+                $('.file_type').html(data.result.type);
+                $('.file_size').html(data.result.size);
+            }
+        }).on('fileuploadprogressall', function (e, data) {
+            var progress = parseInt(data.loaded / data.total * 100, 10);
+            $('.progress .progress-bar').css('width', progress + '%');
+        });
+
+       
+        
+    });
+
+    function init() {
+        $('#btnNovoArquivo').on('click', function () {
+            $('#modalNovoArquivo').modal('show');
+
+
+        });
+
+        $('#btnVoltarNovoArquivo').on('click', function () {
+            $('#modalNovoArquivo').modal('hide');
+        })
+
+    };
+
+    function listArquivos_enumerate(item, $li) {
+        $li.find('.text').html(item.texto);
+    }
+
+</script>
+
+<div class="container" style="border: solid 2px; border-radius: 1rem; margin-top: 2rem; min-height: 500px;">
+
+    <h2 style="text-align: center;">Arquivos</h2>
+    <hr />
+    <button type="button" id="btnNovoArquivo" class="btn form-control btn-default btn-login" style="width: 10rem; margin-bottom: 0.5rem;"> Novo </button>
+    <div class="row">
+        <div class="col-md-12">
+            <div style="border: solid 1px; display: flex;">
+                <div class="item1 item"> Projeto </div>
+                <span class="item2 item"> Nome do Arquivo </span>
+                <span class="item3 item"> Extensão </span>
+                <span class="item4 item"> Data Upload</span>
+                <span class="item5 item"> Usuário</span>
+                <span class="item6 item"> Descrição </span>
+                <span class="item7 item"> Status </span>
+                <span class="item8 item"> Detalhes </span>
+            </div>
+            <ul class="list-group" id="listArquivos">
+                <li class="list-group-item model empty">
+                    <span class="text">Nenhum arquivo encontrado...</span>
+                </li>
+                <li class="list-group-item model default">
+                    <span class="text"></span>
+                    <span class="glyphicon glyphicon-ok action-btn btnDownload" title="Download do arquivo"></span>
+                    <span class="glyphicon glyphicon-ok action-btn btnUpload" title="Upload do arquivo"></span>
+                </li>
+
+
+
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalNovoArquivo">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h3 class="modal-title" style="text-align: center;">Novo Arquivo</h3>
+            </div>
+            <div class="modal-body modal-responsive-body">
+                <div class="flex-row">
+                    <input style="" class="form-control" id="txtProjCad" placeholder="Nome do Projeto" maxlength="50" />
+                    <input style="margin-left: 2rem; min-width: 40%;" class="form-control" id="txtDescricaoCad" placeholder="Descrição do Projeto" maxlength="50" />
+                </div>
+                <div class="form-group flex-row" style="margin-top: 1rem;">
+
+                    <label for="fileupload">
+                        <span class="btn btn-success fileinput-button" style="position: absolute;">
+                            <i class="glyphicon glyphicon-plus">
+                            </i>
+                            <span>
+                                Selecionar Arquivo...
+                            </span>
+                            <input id="fileupload" type="file" name="files[]" multiple style="visibility: hidden;" />
+                        </span>
+                    </label>
+                    <br />
+                    <div class="progress">
+                        <div class="progress progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+                            <span class="sr-only">
+                                0% complete
+                            </span>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="file_name">
+                    </div>
+                    <br />
+                    <div class="file_type">
+                    </div>
+                    <br />
+                    <div class="file_size">
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button id="btnSalvarNovoArquivo" type="submit" class="btn btn-success">Salvar</button>
+                    <button id="btnVoltarNovoArquivo" type="submit" class="btn btn-default">Voltar</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
