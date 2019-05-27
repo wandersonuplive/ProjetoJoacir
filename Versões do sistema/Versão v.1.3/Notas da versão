@@ -1,0 +1,4 @@
+Foram alterados os parâmetros para envio de arquivos de até 10mb, e aumentado o timeout para envio.
+Os seguintes parâmetros foram adicionados:
+maxRequestLength="10250" executionTimeout="1500"
+No arquivo Web.Config
